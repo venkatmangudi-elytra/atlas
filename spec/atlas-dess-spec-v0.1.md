@@ -319,4 +319,189 @@ Implementers **MUST NOT**:
 ---
 
 These principles are expanded and instantiated as specific architectural requirements and controls in subsequent sections of this specification.
+## 2. Architectural pillars of Atlas DESS
+
+Atlas defines security not as a single mechanism, but as a coordination framework across multiple independent planes. Each plane operates under deterministic execution boundaries and shared principles (Section 1), but they fulfil distinct roles.
+
+An implementation claiming conformance with Atlas **MUST** establish and govern each applicable pillar defined in this section. The specific mechanisms may vary by environment, but the architectural separation and intent **MUST** be preserved.
+
+---
+
+### 2.1 Identity and Trust Plane
+
+The Identity & Trust Plane governs how actors (human, service, workload, device) are authenticated, authorised, and tied to policy obligations.
+
+Implementations **MUST**:
+
+- bind execution and access to authenticated identities
+- enforce least privilege and role constraints at all trust boundaries
+- ensure replaceability and revocation of identities without system-wide disruption
+
+Implementations **SHOULD**:
+
+- use strong multi-factor authentication for human identities
+- bind workload identities to attested pipelines and provenance
+- treat identity escalation paths as highly sensitive control points
+
+This plane is the primary enforcement anchor for all other planes.
+
+---
+
+### 2.2 Runtime & Execution Plane
+
+The Runtime & Execution Plane governs how code runs, under what constraints, and within which boundaries.
+
+Implementations **MUST**:
+
+- define explicitly allowed execution contexts (e.g., sandboxes, sidecars, constrained runtimes)
+- restrict execution outside predefined environments
+- block or isolate dynamic code evaluation in high-trust contexts
+
+Implementations **SHOULD**:
+
+- segregate TCB components from general-purpose runtime environments
+- enforce runtime allowlisting for critical workloads
+- detect attempts to bypass execution boundaries as policy violations
+
+This plane directly enables deterministic execution.
+
+---
+
+### 2.3 Network & Transport Plane
+
+The Network & Transport Plane governs how actors communicate, request resources, and move laterally.
+
+Implementations **MUST**:
+
+- enforce identity-bound access, not location-bound (e.g., trust IAM over IP)
+- treat network paths as derivable artifacts, not security primitives
+- validate and constrain routing, service discovery, and peer communication
+
+Implementations **SHOULD**:
+
+- segment workloads into minimal trust zones
+- enforce strong encryption in transit
+- detect behavioural anomalies such as dynamic routing manipulation or covert channels
+
+Network topology MUST be observable and policy-enforced, not emergent or self-mutating.
+
+---
+
+### 2.4 Data & State Plane
+
+The Data & State Plane defines how data is accessed, stored, mutated, and protected across its lifecycle.
+
+Implementations **MUST**:
+
+- enforce deterministic paths for access to sensitive data
+- separate data control (schemas, policies) from data operations (queries, writes)
+- prevent direct access from untrusted runtimes to primary data stores
+
+Implementations **SHOULD**:
+
+- use constrained intermediaries (e.g., sidecars, data gateways)
+- maintain lineage and provenance for critical data flows
+- enforce immutability for high-integrity records
+
+Data planes MUST support reconstruction of state after incidents.
+
+---
+
+### 2.5 Software Supply Chain & Provenance Plane
+
+This plane governs the origin, transformation, and movement of code, artefacts, configurations, and models.
+
+Implementations **MUST**:
+
+- enforce trusted build and deployment pipelines
+- validate provenance before execution or deployment
+- detect and reject artefacts with unverifiable origins
+
+Implementations **SHOULD**:
+
+- embed SBOM metadata into build outputs
+- sign artefacts at pipeline boundaries
+- record provenance events into immutable evidence stores
+
+This plane anchors “trust before run”.
+
+---
+
+### 2.6 Evidence & Observability Plane
+
+This plane governs how systems record, retain, and protect security-relevant events.
+
+Implementations **MUST**:
+
+- generate immutable, append-only evidence correlated across planes
+- record identity, execution, network, and data events with timestamps and proofs
+- prevent workloads from modifying or erasing their own evidence
+
+Implementations **SHOULD**:
+
+- use cryptographic chaining or signing to verify integrity
+- retain evidence for regulatory and investigative timelines
+- maintain cross-plane reconciliation for high-impact events
+
+This plane is foundational for incident response, audit, and assurance.
+
+---
+
+### 2.7 Control Plane
+
+The Control Plane governs configuration, orchestration, policy, and administration.
+
+Implementations **MUST**:
+
+- isolate the control plane from the execution and data planes
+- log all policy changes and privileged actions as evidence
+- enforce strong identity controls for administrative functions
+
+Implementations **SHOULD**:
+
+- separate read, operate, and administer privileges
+- validate configuration changes against deterministic policy constraints
+- require explicit approvals or governance workflows for high-impact changes
+
+The compromise of the control plane is treated as system-critical.
+
+---
+
+### 2.8 AI & Automation Plane
+
+This plane governs how AI systems interact with protected environments.
+
+Implementations **MUST**:
+
+- apply deterministic policy boundaries to AI-driven execution
+- restrict autonomous access to sensitive systems or irreversible actions
+- log AI decisions and tool interactions into the evidence plane
+
+Implementations **SHOULD**:
+
+- use AI for defender-side simulation and red-teaming
+- detect manipulation attempts targeting AI agents, models, or prompts
+- establish feedback loops between behavioural detection and AI simulation
+
+This plane operationalises AI symmetrically for defense.
+
+---
+
+### 2.9 Governance & Verification Plane
+
+This plane enforces accountability, review, and assurance of system-wide behaviour.
+
+Implementations **MUST**:
+
+- define explicit responsibility and ownership for each plane
+- implement cross-plane verification of state, identity, policy, and evidence
+- review controls periodically against threat evolution
+
+Implementations **SHOULD**:
+
+- maintain public change logs or versioned governance documents
+- incorporate independent verification or external audit
+- establish escalation paths for architectural drift from deterministic principles
+
+Governance binds the system to ongoing correctness, not just initial design.
 
